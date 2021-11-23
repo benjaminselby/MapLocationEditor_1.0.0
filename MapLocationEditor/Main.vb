@@ -209,7 +209,7 @@ Public Class Main
     Private Sub RoomNamesCbx_SelectedIndexChanged(sender As Object, e As EventArgs) _
             Handles RoomNamesCbx.SelectedIndexChanged
 
-        ' Get the co-ordinates of a location box (if one has already been saved) to the database and display. 
+        ' Get the co-ordinates of a location box (if one has already been saved to the database) and display. 
 
         If RoomNamesCbx.Text <> "" Then
 

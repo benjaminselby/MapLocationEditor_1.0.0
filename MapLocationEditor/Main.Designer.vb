@@ -1,4 +1,4 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
+<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class Main
     Inherits System.Windows.Forms.Form
 
@@ -73,14 +73,15 @@ Partial Class Main
         '
         'messageLbl
         '
-        Me.messageLbl.Anchor = CType((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
+        Me.messageLbl.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.messageLbl.Location = New System.Drawing.Point(372, 5)
         Me.messageLbl.Name = "messageLbl"
         Me.messageLbl.Size = New System.Drawing.Size(719, 23)
         Me.messageLbl.TabIndex = 5
         Me.messageLbl.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
-        'Form1
+        'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
@@ -90,7 +91,7 @@ Partial Class Main
         Me.Controls.Add(Me.SaveBtn)
         Me.Controls.Add(Me.Label1)
         Me.Controls.Add(Me.mapPictureBox)
-        Me.Name = "Form1"
+        Me.Name = "Main"
         Me.Text = "Form1"
         CType(Me.mapPictureBox, System.ComponentModel.ISupportInitialize).EndInit()
         Me.ResumeLayout(False)

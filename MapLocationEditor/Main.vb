@@ -1,4 +1,4 @@
-﻿Imports System.Data.SqlClient
+Imports System.Data.SqlClient
 Imports System.Configuration
 Imports System.ComponentModel
 
@@ -7,12 +7,12 @@ Public Class Main
     Private locationRectangle As Rectangle
     Private startPoint As Point
     Private isDragging As Boolean
-    Private mapImage As Image
     Private imageScaleFactor As Double
-    Private imageXpos As Integer
-    Private imageYpos As Integer
-    Private imageDisplayWidth As Integer
-    Private imageDisplayHeight As Integer
+    Private imagePosition As Point
+    Private imageDisplaySize As Size
+    Private oldImagePosition As Point
+    Private oldImageDisplaySize As Size
+
 
     Public Sub New()
 
@@ -20,7 +20,6 @@ Public Class Main
         InitializeComponent()
 
         mapPictureBox.CreateGraphics.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
-        mapImage = mapPictureBox.Image
 
         ' Load the room name combobox with a list of room IDs as they appear in the database timetable. 
         Using synergyConn As New SqlConnection(ConfigurationManager.ConnectionStrings("synergy").ToString)
@@ -48,7 +47,7 @@ Public Class Main
 
     Private Sub setImageScalingValues()
 
-        If mapImage IsNot Nothing Then
+        If mapPictureBox.Image IsNot Nothing Then
 
             ' The picure box image is scaled to fit into the picture box. 
             ' This means that the image's new dimensions will depend on the shape of the image 
@@ -62,24 +61,24 @@ Public Class Main
             ' Compute a Width to Height ratio for both the image and the picture box.
             ' Comparison of the two ratios indicates how the image will be resized to fit
             ' into the picture box (assuming Zoom mode).
-            If mapImage.Width / mapImage.Height > mapPictureBox.ClientSize.Width / mapPictureBox.ClientSize.Height Then
+            If mapPictureBox.Image.Width / mapPictureBox.Image.Height > mapPictureBox.ClientSize.Width / mapPictureBox.ClientSize.Height Then
 
                 ' Image fits box horizontally and is centred vertically.
-                imageScaleFactor = mapPictureBox.ClientSize.Width / mapImage.Width
-                imageXpos = 0
-                imageYpos = (mapPictureBox.ClientSize.Height - mapImage.Height * imageScaleFactor) \ 2
+                imageScaleFactor = mapPictureBox.ClientSize.Width / mapPictureBox.Image.Width
+                imagePosition.X = 0
+                imagePosition.Y = (mapPictureBox.ClientSize.Height - mapPictureBox.Image.Height * imageScaleFactor) \ 2
 
             Else
 
                 ' Image fits box vertically and is centred horizontally.
-                imageScaleFactor = mapPictureBox.ClientSize.Height / mapImage.Height
-                imageXpos = (mapPictureBox.ClientSize.Width - mapImage.Width * imageScaleFactor) \ 2
-                imageYpos = 0
+                imageScaleFactor = mapPictureBox.ClientSize.Height / mapPictureBox.Image.Height
+                imagePosition.X = (mapPictureBox.ClientSize.Width - mapPictureBox.Image.Width * imageScaleFactor) \ 2
+                imagePosition.Y = 0
 
             End If
 
-            imageDisplayWidth = mapImage.Width * imageScaleFactor
-            imageDisplayHeight = mapImage.Height * imageScaleFactor
+            imageDisplaySize.Width = mapPictureBox.Image.Width * imageScaleFactor
+            imageDisplaySize.Height = mapPictureBox.Image.Height * imageScaleFactor
 
         End If
 
@@ -93,14 +92,29 @@ Public Class Main
 
     Private Sub mapPictureBox_Resize(sender As Object, e As EventArgs) Handles mapPictureBox.Resize
 
+        oldImagePosition = imagePosition
+
         setImageScalingValues()
+
+        ' Resize the current location rectangle (if there is one).
+        If locationRectangle.Size <> New Size(0, 0) And oldImageDisplaySize <> New Size(0, 0) Then
+
+            Dim horizScale As Double = imageDisplaySize.Width / oldImageDisplaySize.Width
+            Dim vertScale As Double = imageDisplaySize.Height / oldImageDisplaySize.Height
+
+            locationRectangle.X = (locationRectangle.X - oldImagePosition.X) * horizScale + imagePosition.X
+            locationRectangle.Y = (locationRectangle.Y - oldImagePosition.Y) * vertScale + imagePosition.Y
+            locationRectangle.Width = locationRectangle.Width * horizScale
+            locationRectangle.Height = locationRectangle.Height * vertScale
+
+        End If
+
+        oldImageDisplaySize = imageDisplaySize
 
     End Sub
 
 
     Private Sub mapPictureBox_Paint(sender As Object, e As PaintEventArgs) Handles mapPictureBox.Paint
-
-        setImageScalingValues()
 
         If locationRectangle <> Nothing Then
 
@@ -158,10 +172,10 @@ Public Class Main
 
             ' Location and size of the drawn rectangle are recorded as proportions of the image area
             ' so they can be re-drawn regardless of the image rendering size. 
-            Dim locationXProp As Double = (locationRectangle.X - imageXpos) / imageDisplayWidth
-            Dim locationYProp As Double = (locationRectangle.Y - imageYpos) / imageDisplayHeight
-            Dim locationWidthProp As Double = locationRectangle.Width / imageDisplayWidth
-            Dim locationHeightProp As Double = locationRectangle.Height / imageDisplayHeight
+            Dim locationXProp As Double = (locationRectangle.X - imagePosition.X) / imageDisplaySize.Width
+            Dim locationYProp As Double = (locationRectangle.Y - imagePosition.Y) / imageDisplaySize.Height
+            Dim locationWidthProp As Double = locationRectangle.Width / imageDisplaySize.Width
+            Dim locationHeightProp As Double = locationRectangle.Height / imageDisplaySize.Height
 
             ' Save rectangle proportions to database. 
             Using synergyConn As New SqlConnection(ConfigurationManager.ConnectionStrings("synergy").ToString)
@@ -211,10 +225,10 @@ Public Class Main
                         If getLocationRdr.HasRows Then
 
                             getLocationRdr.Read()
-                            locationRectangle.X = imageXpos + CDbl(getLocationRdr("X")) * imageDisplayWidth
-                            locationRectangle.Y = imageYpos + CDbl(getLocationRdr("Y")) * imageDisplayHeight
-                            locationRectangle.Width = CDbl(getLocationRdr("Width")) * imageDisplayWidth
-                            locationRectangle.Height = CDbl(getLocationRdr("Height")) * imageDisplayHeight
+                            locationRectangle.X = imagePosition.X + CDbl(getLocationRdr("X")) * imageDisplaySize.Width
+                            locationRectangle.Y = imagePosition.Y + CDbl(getLocationRdr("Y")) * imageDisplaySize.Height
+                            locationRectangle.Width = CDbl(getLocationRdr("Width")) * imageDisplaySize.Width
+                            locationRectangle.Height = CDbl(getLocationRdr("Height")) * imageDisplaySize.Height
 
                         Else
 

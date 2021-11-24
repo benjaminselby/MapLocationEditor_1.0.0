@@ -13,12 +13,18 @@ Public Class Main
     Private oldImagePosition As Point
     Private oldImageDisplaySize As Size
     Private oldMousePosition As Point
+    Private buttonBackColour As Color
+    Private buttonForeColour As Color
 
 
     Public Sub New()
 
         ' This call is required by the designer.
         InitializeComponent()
+
+        ' Get default button color values so we can return to them after flashing button. 
+        buttonBackColour = SaveBtn.BackColor
+        buttonForeColour = SaveBtn.ForeColor
 
         mapPictureBox.CreateGraphics.SmoothingMode = Drawing2D.SmoothingMode.AntiAlias
 
@@ -218,6 +224,11 @@ Public Class Main
                     locationWidthProp,
                     locationHeightProp)
 
+            ' Flash the save button colour to notify the user of state change. 
+            SaveBtn.BackColor = SystemColors.Highlight
+            SaveBtn.ForeColor = SystemColors.HighlightText
+            MyTimer.Start()
+
         End If
 
     End Sub
@@ -259,6 +270,12 @@ Public Class Main
             mapPictureBox.Invalidate()
 
         End If
+    End Sub
+
+    Private Sub MyTimer_Tick(sender As Object, e As EventArgs) Handles MyTimer.Tick
+        SaveBtn.BackColor = buttonBackColour
+        SaveBtn.ForeColor = buttonForeColour
+        MyTimer.Stop()
     End Sub
 
 End Class

@@ -13,6 +13,9 @@ as PROPORTIONS of the image width & height. So, instead of storing X=123 pixels,
 will be stored, indicating that the X value is 0.07 x the width of the image. The rectangles can 
 therefore be overlaid on the map regardless of its display size. 
 
+This tool is pretty basic and not designed to be scaleable because it's use will be very limited 
+in our organisation. 
+
 ======================================================================================================
 v1.0.0
 ======================================================================================================

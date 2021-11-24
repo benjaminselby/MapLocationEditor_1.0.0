@@ -12,6 +12,7 @@ Public Class Main
     Private imageDisplaySize As Size
     Private oldImagePosition As Point
     Private oldImageDisplaySize As Size
+    Private oldMousePosition As Point
 
 
     Public Sub New()
@@ -140,17 +141,32 @@ Public Class Main
 
         If isDragging Then
 
-            locationRectangle.X = If(e.X < startPoint.X, e.X, startPoint.X)
+            locationRectangle.X = Math.Min(e.X, startPoint.X)
+            locationRectangle.Y = Math.Min(e.Y, startPoint.Y)
             locationRectangle.Width = Math.Abs(startPoint.X - e.X)
-
-            locationRectangle.Y = If(e.Y < startPoint.Y, e.Y, startPoint.Y)
             locationRectangle.Height = Math.Abs(startPoint.Y - e.Y)
 
-            mapPictureBox.Invalidate(New Rectangle(
-                locationRectangle.X - 10, locationRectangle.Y - 10,
-                locationRectangle.Width + 100, locationRectangle.Height + 100))
+            ' The invalidation area needs to cover the current rectangle area, but also include 
+            ' the previous mouse pointer location. Without doing this, rapid mouse movements will leave
+            ' orphaned drawing elements. 
+            ' The invalidation area is also padded by 10 pixels each way to make sure it covers
+            ' thick borders. This could arguably be improved by detecting the current drawing pen width
+            ' but that's probably overkill at this point. 
+
+            Dim invalidateRect As Rectangle
+            invalidateRect.X = Math.Min(oldMousePosition.X, locationRectangle.X) - 10
+            invalidateRect.Y = Math.Min(oldMousePosition.Y, locationRectangle.Y) - 10
+            invalidateRect.Width = Math.Abs(
+                Math.Max(oldMousePosition.X, Math.Max(e.X, startPoint.X)) - invalidateRect.X) + 20
+            invalidateRect.Height = Math.Abs(
+                Math.Max(oldMousePosition.Y, Math.Max(e.Y, startPoint.Y)) - invalidateRect.Y) + 20
+
+            mapPictureBox.Invalidate(invalidateRect)
+
+            oldMousePosition = e.Location
 
         End If
+
 
     End Sub
 
@@ -244,6 +260,5 @@ Public Class Main
 
         End If
     End Sub
-
 
 End Class

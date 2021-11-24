@@ -22,11 +22,13 @@ Partial Class Main
     'Do not modify it using the code editor.
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
+        Me.components = New System.ComponentModel.Container()
         Me.mapPictureBox = New System.Windows.Forms.PictureBox()
         Me.Label1 = New System.Windows.Forms.Label()
         Me.SaveBtn = New System.Windows.Forms.Button()
         Me.RoomNamesCbx = New System.Windows.Forms.ComboBox()
         Me.messageLbl = New System.Windows.Forms.Label()
+        Me.MyTimer = New System.Windows.Forms.Timer(Me.components)
         CType(Me.mapPictureBox, System.ComponentModel.ISupportInitialize).BeginInit()
         Me.SuspendLayout()
         '
@@ -81,6 +83,10 @@ Partial Class Main
         Me.messageLbl.TabIndex = 5
         Me.messageLbl.TextAlign = System.Drawing.ContentAlignment.MiddleRight
         '
+        'MyTimer
+        '
+        Me.MyTimer.Interval = 1000
+        '
         'Main
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(7.0!, 15.0!)
@@ -104,4 +110,5 @@ Partial Class Main
     Friend WithEvents SaveBtn As Button
     Friend WithEvents RoomNamesCbx As ComboBox
     Friend WithEvents messageLbl As Label
+    Friend WithEvents MyTimer As Timer
 End Class
